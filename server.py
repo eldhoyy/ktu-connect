@@ -32,11 +32,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ---- branding config ----
-BRAND_TEXT = os.getenv("BRAND_TEXT", "Downloaded from Keralatimetable.in")
-LOGO_PATH  = os.getenv("BRAND_LOGO_PATH", "keralattlogo.png")
+# ---- KTU Connect branding config ----
+BRAND_TEXT = os.getenv("BRAND_TEXT", "Downloaded from KTU Connect")
+LOGO_PATH  = os.getenv("BRAND_LOGO_PATH", "")
 LOGO_BYTES = open(LOGO_PATH, "rb").read() if LOGO_PATH and os.path.exists(LOGO_PATH) else None
 ADMIN_KEY  = os.getenv("ADMIN_KEY", "change-me")
+ALLOWED_ORIGINS = [x.strip().lower() for x in os.getenv("ALLOWED_ORIGINS", "").split(",") if x.strip()]
 
 # ---- Telegram & AI Secrets (Stored in Hugging Face Space Secrets, NEVER in GitHub) ----
 TG_BOT_TOKEN       = os.getenv("TG_BOT_TOKEN")
@@ -71,9 +72,9 @@ class WatermarkNotesReq(BaseModel):
 
 @app.get("/brand-logo")
 def get_brand_logo():
-    """Serves keralattlogo.png so watermark-tool.html can render a live opacity preview."""
+    """Optional artwork endpoint; disabled unless a brand image is configured."""
     if not LOGO_BYTES:
-        raise HTTPException(404, "keralattlogo.png not found on server")
+        raise HTTPException(404, "No brand artwork configured")
     return Response(content=LOGO_BYTES, media_type="image/png")
 
 
@@ -212,10 +213,10 @@ async def watermark_notes(req: WatermarkNotesReq):
 @app.post("/telegram-auth")
 async def telegram_auth(request: Request):
     """
-    Returns XOR-masked Telegram credentials from Hugging Face Secrets ONLY to keralatimetable.in.
+    Returns Telegram credentials only to configured KTU Connect origins.
     """
     origin = (request.headers.get("origin") or request.headers.get("referer") or "").lower()
-    if "keralatimetable.in" not in origin and "localhost" not in origin and "127.0.0.1" not in origin:
+    if origin not in ALLOWED_ORIGINS and "localhost" not in origin and "127.0.0.1" not in origin:
         raise HTTPException(403, "Forbidden origin")
 
     if not TG_BOT_TOKEN:
@@ -230,10 +231,10 @@ async def telegram_auth(request: Request):
 @app.post("/gemini-auth")
 async def gemini_auth(request: Request):
     """
-    Returns XOR-masked Gemini, Groq, OpenRouter & HF API keys from Hugging Face Secrets ONLY to keralatimetable.in.
+    Returns AI credentials only to configured KTU Connect origins.
     """
     origin = (request.headers.get("origin") or request.headers.get("referer") or "").lower()
-    if "keralatimetable.in" not in origin and "localhost" not in origin and "127.0.0.1" not in origin:
+    if "ktu-connect.example" not in origin and "localhost" not in origin and "127.0.0.1" not in origin:
         raise HTTPException(403, "Forbidden origin")
 
     g_keys  = [k.strip() for k in GEMINI_API_KEY.split(",") if k.strip()]
@@ -260,7 +261,7 @@ async def gemini_auth(request: Request):
 @app.post("/vision-audit")
 async def vision_audit(request: Request):
     """
-    Authenticated Server Relay to KeralaTimetable/ktu-vision-brain (Qwen3-VL-8B on ZeroGPU).
+    Authenticated Server Relay to the configured vision model (Qwen3-VL-8B on ZeroGPU).
     """
     payload = await request.json()
     payload_str = json.dumps(payload)

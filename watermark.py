@@ -1,7 +1,7 @@
 """
 watermark.py
 ------------
-Add your brand watermark (centered logo + bottom text) to KTU question paper & notes PDFs,
+Add your brand watermark (KTU Connect text mark + bottom text) to KTU question paper & notes PDFs,
 and safely remove existing third-party watermarks (Ktunotes.live, Ktuspecial.in, etc.)
 while 100% preserving:
   - Typed note diagrams, flowcharts, and transparent PNG figures (DSA notes, PPTs, etc.)
@@ -62,7 +62,7 @@ def _is_competitor_text(line_text: str, extra_keywords: list[str] | None = None)
     low = cleaned.lower()
 
     # Never strip our own watermark if re-processing
-    if "keralatimetable" in low:
+    if "ktu connect" in low:
         return False
 
     if extra_keywords:
@@ -272,7 +272,7 @@ def remove_existing_watermarks(
         try:
             for link in list(page.get_links()):
                 uri = (link.get("uri") or "").lower()
-                if not uri or "keralatimetable" in uri:
+                if not uri or "ktu connect" in uri:
                     continue
                 if any(kw in uri for kw in DEFAULT_COMPETITOR_KEYWORDS) or (
                     extra_keywords and any(k.strip().lower() in uri for k in extra_keywords if k.strip())
@@ -318,7 +318,7 @@ def _apply_png_opacity(logo_bytes: bytes, logo_opacity: float | None) -> tuple[b
 def add_watermark(
     pdf_bytes: bytes,
     logo_bytes: bytes | None = None,
-    text: str | None = "Downloaded from Keralatimetable.in",
+    text: str | None = "Downloaded from KTU Connect",
     logo_scale: float = 0.65,
     logo_opacity: float | None = None,
     text_color=(0.2, 0.2, 0.2),
@@ -327,7 +327,7 @@ def add_watermark(
 ) -> bytes:
     """
     Safely strips existing third-party watermarks without ever deleting diagrams or handwritten pages,
-    and returns new PDF bytes with a centered logo and bottom-center text.
+    and returns new PDF bytes with a centered text mark and bottom-center text.
     """
     doc = fitz.open(stream=pdf_bytes, filetype="pdf")
 
@@ -335,7 +335,7 @@ def add_watermark(
     if clean_existing:
         remove_existing_watermarks(doc, extra_keywords=extra_remove_keywords)
 
-    # Step 2: Prepare our brand logo
+    # Step 2: Prepare optional brand artwork
     processed_logo = None
     logo_ratio = None
     if logo_bytes:
@@ -346,7 +346,7 @@ def add_watermark(
         r = page.rect
         short_side = min(r.width, r.height)
 
-        # 1) Centered Logo image — uses short_side so 16:9 PPT slides & A4 Portrait both fit properly
+        # 1) Optional centered artwork — uses short_side so 16:9 PPT slides & A4 Portrait both fit properly
         if processed_logo and logo_ratio:
             w = short_side * logo_scale
             h = w * logo_ratio
@@ -362,7 +362,7 @@ def add_watermark(
             box = fitz.Rect(x0, y0, x0 + w, y0 + h)
             page.insert_image(box, stream=processed_logo, overlay=True)
 
-        # 2) Bottom-center text ("Downloaded from Keralatimetable.in")
+        # 2) Bottom-center text ("Downloaded from KTU Connect")
         if text:
             font_size = max(10.0, min(13.0, short_side * 0.02))
             text_length = fitz.get_text_length(text, fontname="helv", fontsize=font_size)
@@ -399,7 +399,7 @@ def merge_pdfs(pdf_bytes_list: list[bytes]) -> bytes:
 def brand_papers(
     pdf_bytes_list: list[bytes],
     logo_bytes: bytes | None = None,
-    text: str | None = "Downloaded from Keralatimetable.in",
+    text: str | None = "Downloaded from KTU Connect",
     logo_scale: float = 0.65,
     logo_opacity: float | None = None,
     clean_existing: bool = True,
@@ -443,6 +443,6 @@ if __name__ == "__main__":
     pdf = open(inp, "rb").read()
     lg = open(logo, "rb").read()
     open(outp, "wb").write(
-        add_watermark(pdf, logo_bytes=lg, text="Downloaded from Keralatimetable.in", clean_existing=True)
+        add_watermark(pdf, logo_bytes=lg, text="Downloaded from KTU Connect", clean_existing=True)
     )
     print("wrote", outp)
