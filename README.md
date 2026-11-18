@@ -20,7 +20,7 @@ This repository is a static-first website. Open `index.html` through a local web
 1. Import this GitHub repository into Vercel.
 2. Keep the project root as the repository root.
 3. For the static pages, use no build command and publish the repository root.
-4. Configure the required external service environment variables separately before enabling server-backed features.
+4. Configure the required external services before enabling server-backed features. Set `ALLOWED_ORIGINS` to the exact deployed KTU Connect origin and set `BRAND_TEXT` to `Downloaded from KTU Connect`. Set `BRAND_LOGO_PATH` only if you provide your own artwork. Firebase and Hugging Face integrations still need to be moved to accounts you control before production use.
 5. Add your custom domain only when you are ready to configure it.
 
 The site is not yet tied to a custom domain.

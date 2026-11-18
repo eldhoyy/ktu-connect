@@ -181,7 +181,7 @@ async def watermark_notes(req: WatermarkNotesReq):
     """
     Accepts uploaded PDF study notes or PPT slides (as base64), strips existing
     third-party watermarks (like Ktunotes.live / Ktuspecial.in), and stamps them using
-    keralattlogo.png (LOGO_BYTES) with adjustable logo_opacity & logo_scale.
+    an optional configured artwork image with adjustable opacity and scale.
     """
     if not req.pdfs_b64:
         raise HTTPException(400, "No PDF files provided")

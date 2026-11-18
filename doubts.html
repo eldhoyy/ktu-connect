@@ -283,7 +283,7 @@
             measurementId: "G-G2WYE8SQ4S"
         };
 
-        const ADMIN_EMAIL = "keralatimetable@gmail.com";
+        const ADMIN_EMAIL = window.KTU_CONNECT_CONFIG?.adminEmail || "";
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
