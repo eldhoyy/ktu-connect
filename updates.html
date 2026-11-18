@@ -3,11 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
-    <title>KTU Notifications & Announcements | Kerala Timetable</title>
+    <title>KTU Notifications & Announcements | KTU Connect</title>
     <meta name="description" content="Instant, wait-free official KTU exam timetables, circulars, notifications, and B.Tech academic announcements for the 2024 & 2019 schemes.">
-    <link rel="canonical" href="https://keralatimetable.in/updates.html" />
-    <link rel="icon" href="/favicon.png" type="image/png">
-
     <!-- Tailwind CSS with Fallback -->
     <script src="/tailwind-local.js" onerror="this.onerror=null;this.src='https://cdn.tailwindcss.com';"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -290,12 +287,12 @@
     <!-- FOOTER -->
     <footer class="mt-auto border-t border-slate-200/60 bg-white/60 backdrop-blur-md py-6 sm:py-7 text-center relative z-10">
         <div class="max-w-3xl mx-auto px-4 flex flex-col items-center gap-2">
-            <h3 class="text-slate-800 font-bold text-sm sm:text-base">Kerala Timetable</h3>
+            <h3 class="text-slate-800 font-bold text-sm sm:text-base">KTU Connect</h3>
             <p class="text-slate-500 text-xs leading-relaxed max-w-lg mx-auto">
                 Independent academic hub providing rapid university schedules and syllabus resources. Not officially affiliated with APJ Abdul Kalam Technological University.
             </p>
             <div class="mt-1 text-xs text-slate-400 flex items-center gap-3">
-                <span>© Kerala Timetable</span>
+                <span>© KTU Connect</span>
                 <span>•</span>
                 <button onclick="toggleAdminPanel()" class="hover:text-slate-600 transition-colors flex items-center gap-1 font-bold">
                     <i class="fas fa-lock text-[10px]"></i> Admin Portal
@@ -424,7 +421,7 @@
             measurementId: "G-G2WYE8SQ4S"
         };
 
-        const ADMIN_EMAIL = "keralatimetable@gmail.com";
+        const ADMIN_EMAIL = window.KTU_CONNECT_CONFIG?.adminEmail || "";
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
@@ -682,7 +679,7 @@
                 const shareUrl = `${window.location.origin}${window.location.pathname}?id=${encodeURIComponent(notice.id)}`;
                 const shareData = {
                     title: notice.title,
-                    text: `${notice.title} — KTU Notice on Kerala Timetable`,
+                    text: `${notice.title} — KTU Notice on KTU Connect`,
                     url: shareUrl
                 };
                 if (navigator.share) {
