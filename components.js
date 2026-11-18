@@ -5,7 +5,7 @@ window.KTUFlow = (function() {
     const PROFILE_KEY = 'ktu_flow_profile_v2';
     const RECENT_KEY = 'ktu_flow_recent_v2';
     const CATALOG_CACHE_KEY = 'ktu_flow_catalog_cache_v2';
-    const FIREBASE_NOTICES_URL = '/notices.json';
+    const FIREBASE_NOTICES_URL = 'https://keralatimetable-5e155-default-rtdb.asia-southeast1.firebasedatabase.app/ktu_notices.json';
 
     let memoryCatalog = null;
     let prefetchedUrls = new Set();
@@ -1369,26 +1369,7 @@ window.KTULiquidGlass = (function() {
     mountDarkStyles();
 })();
 
-// ==============================================================================
-// 3. GOOGLE ANALYTICS 4 (GA4) LIVE TRACKING
-// ==============================================================================
-(function() {
-    if (window._ga4Initialized) return;
-    window._ga4Initialized = true;
-
-    const gaScript = document.createElement('script');
-    gaScript.async = true;
-    gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-TK5MBC372D';
-    document.head.appendChild(gaScript);
-
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){ dataLayer.push(arguments); }
-    gtag('js', new Date());
-    gtag('config', 'G-TK5MBC372D');
-})();
-
-// ==============================================================================
-// 4. RESPONSIVE NAVIGATION LOADER (Mounts Full-Screen Drawer to document.body)
+// ==============================================================================\n// 4. RESPONSIVE NAVIGATION LOADER (Mounts Full-Screen Drawer to document.body)
 // ==============================================================================
 function loadNavigation(activePage, basePath = '', isBlog = false) { 
     const container = document.getElementById('navigation-container');
