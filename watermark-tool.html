@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
-    <title>PDF Notes & PPT Watermarker | Kerala Timetable</title>
+    <title>PDF Notes & PPT Watermarker | KTU Connect</title>
     <meta name="robots" content="noindex, nofollow">
-    <link rel="icon" href="https://keralatimetable.in/favicon.png" type="image/png">
-
     <!-- Tailwind Local with CDN Fallback -->
     <script src="/tailwind-local.js" onerror="this.onerror=null;this.src='https://cdn.tailwindcss.com';"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -85,7 +83,7 @@
                 PDF Notes &amp; PPT <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600">Watermarker</span>
             </h1>
             <p class="text-slate-600 text-xs sm:text-base font-medium leading-relaxed">
-                Automatically removes old watermarks (<strong>Ktunotes.live</strong>, <strong>Ktuspecial.in</strong>, etc.), stamps <strong>`keralattlogo.png`</strong>, and adds <strong>"Downloaded from Keralatimetable.in"</strong>.
+                Automatically removes old watermarks (<strong>Ktunotes.live</strong>, <strong>Ktuspecial.in</strong>, etc.), stamps <strong>`keralattlogo.png`</strong>, and adds <strong>"Downloaded from "</strong>.
             </p>
         </div>
 
@@ -190,7 +188,7 @@
 
                         <!-- Bottom-Center Text -->
                         <div class="text-[6px] font-bold text-slate-700 text-center tracking-tight z-10">
-                            Downloaded from Keralatimetable.in
+                            Downloaded from 
                         </div>
                     </div>
                 </div>
@@ -262,7 +260,7 @@
                     <i class="fas fa-file-pdf text-rose-500 text-lg"></i>
                     <div class="truncate">
                         <h3 id="preview-modal-title" class="text-xs sm:text-sm font-bold text-slate-800 truncate">Watermarked PDF Preview</h3>
-                        <p id="preview-modal-subtitle" class="text-[10px] font-mono-code text-slate-500">Cleaned &amp; Stamped with keralattlogo.png &amp; Downloaded from Keralatimetable.in</p>
+                        <p id="preview-modal-subtitle" class="text-[10px] font-mono-code text-slate-500">Cleaned &amp; Stamped with keralattlogo.png &amp; Downloaded from </p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2 shrink-0">
@@ -284,7 +282,7 @@
     <!-- Footer -->
     <footer class="mt-auto border-t border-slate-200/60 bg-white/60 backdrop-blur-md py-6 text-center relative z-10">
         <div class="max-w-3xl mx-auto px-4">
-            <h3 class="text-slate-800 font-bold text-sm sm:text-base mb-1">Kerala Timetable</h3>
+            <h3 class="text-slate-800 font-bold text-sm sm:text-base mb-1">KTU Connect</h3>
             <p class="text-slate-500 text-xs leading-relaxed max-w-lg mx-auto">
                 Powered by KTU Papers API (`watermark.py` &amp; `keralattlogo.png`).
             </p>
@@ -333,9 +331,9 @@
             const urls = [
                 `${API_URL}/brand-logo`,
                 '/keralattlogo.png',
-                'https://keralatimetable.in/keralattlogo.png',
+                'https:///keralattlogo.png',
                 '/k.png',
-                'https://keralatimetable.in/k.png'
+                'https:///k.png'
             ];
             for (const u of urls) {
                 try {
@@ -492,7 +490,7 @@
                 catch (e) { try { embeddedLogo = await mergedPdf.embedJpg(cachedLogoBytes); } catch (e2) {} }
             }
 
-            const text = "Downloaded from Keralatimetable.in";
+            const text = "Downloaded from ";
 
             for (const page of mergedPdf.getPages()) {
                 const { width, height } = page.getSize();
