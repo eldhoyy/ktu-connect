@@ -309,9 +309,7 @@ def generate_html_page(raw_title, pdf_filename, ai_data=None, html_output_dir=".
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <meta name="google-site-verification" content="cPHgzg8741NBFQ5HszgVIPA3EMrKJLlj7IHcyLGM2Lo" />
     
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7313827303298932" crossorigin="anonymous"></script>
     
     <title>[[SEO_TITLE_TAG]] | Kerala Timetable</title>
     <link rel="canonical" href="https://keralatimetable.in/timetable_pages/[[SLUG]].html" />
