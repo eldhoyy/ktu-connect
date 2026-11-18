@@ -18,72 +18,9 @@ try:
 except ImportError:
     HAS_CAMOUFOX = False
 
-# --- FIREBASE IMPORTS ---
-import firebase_admin
-from firebase_admin import credentials, messaging, db
 
 # Disable SSL warnings when bypassing KTU's misconfigured SSL certificate
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
-# -------------------------------------------------------------------
-# FIREBASE SETUP
-# -------------------------------------------------------------------
-firebase_creds_json = os.environ.get('FIREBASE_CREDENTIALS')
-if firebase_creds_json:
-    try:
-        cred_dict = json.loads(firebase_creds_json)
-        cred = credentials.Certificate(cred_dict)
-        firebase_admin.initialize_app(cred, {
-            'databaseURL': 'https://kerala-timetable-db-default-rtdb.asia-southeast1.firebasedatabase.app'
-        })
-        print("✅ Firebase Admin initialized successfully.")
-    except Exception as e:
-        print(f"⚠️ Firebase Init Error: {e}")
-else:
-    print("⚠️ FIREBASE_CREDENTIALS not found in environment variables. Push notifications will be skipped.")
-
-
-def send_push_notification(title, body):
-    """Fetches tokens from Firebase and broadcasts the push notification."""
-    if not firebase_creds_json:
-        print("⏭️ Skipping Push: No Firebase credentials found.")
-        return
-
-    try:
-        ref = db.reference('subscribers')
-        subscribers = ref.get()
-
-        if not subscribers:
-            print("📭 No subscribers found in database.")
-            return
-
-        tokens = list(subscribers.keys())
-        print(f"📢 Preparing to send push notification to {len(tokens)} devices...")
-
-        success_total = 0
-        failure_total = 0
-
-        for i in range(0, len(tokens), 500):
-            batch_tokens = tokens[i:i + 500]
-            message = messaging.MulticastMessage(
-                notification=messaging.Notification(
-                    title=title,
-                    body=body
-                ),
-                tokens=batch_tokens
-            )
-            if hasattr(messaging, "send_each_for_multicast"):
-                response = messaging.send_each_for_multicast(message)
-            else:
-                response = messaging.send_multicast(message)
-            success_total += response.success_count
-            failure_total += response.failure_count
-
-        print(f"🚀 Push Sent! Success: {success_total} | Failed: {failure_total}")
-
-    except Exception as e:
-        print(f"❌ Error sending push notification: {e}")
-
 
 # -------------------------------------------------------------------
 # AI SETUP & EXTENDED SCHEMA
@@ -1247,11 +1184,6 @@ def process_downloaded_pdf(save_path, filename, title, date_str, html_dir):
 
         ai_extracted_data['viewLink'] = relative_html_link
         update_timetable_config(ai_extracted_data)
-
-        send_push_notification(
-            title="🚨 New KTU Timetable Published!",
-            body=f"{short_title} is now available on the dashboard."
-        )
     else:
         fallback_clean = clean_ktu_raw_title(title)
         html_filepath, relative_html_link = generate_html_page(title, filename, ai_data=None, html_output_dir=html_dir)
@@ -1270,11 +1202,6 @@ def process_downloaded_pdf(save_path, filename, title, date_str, html_dir):
             "pdfLink": relative_pdf_link
         }
         update_timetable_config(fallback_dashboard)
-
-        send_push_notification(
-            title="🚨 New KTU Timetable Published!",
-            body=f"{fallback_clean['clean_title']} is now available on the dashboard."
-        )
 
     return {
         "title": title,
