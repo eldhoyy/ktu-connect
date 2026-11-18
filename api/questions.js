@@ -60,6 +60,61 @@ module.exports = async function handler(req, res) {
 
     const session = getSession(req);
     if (!session) return json(res, 401, { error: "Administrator sign-in required." });
+    if (body.action === "migrateLegacy") {
+      const base = process.env.LEGACY_QA_BASE_URL;
+      if (!base) return json(res, 400, { error: "Temporary previous Q&A source is not configured." });
+      const parsed = new URL(base);
+      if (parsed.protocol !== "https:" ||
+          !(parsed.hostname.endsWith(".firebasedatabase.app") || parsed.hostname.endsWith(".firebaseio.com")) ||
+          parsed.pathname !== "/" || parsed.search || parsed.hash) {
+        return json(res, 400, { error: "Previous Q&A source URL is invalid." });
+      }
+      const [pendingResponse, approvedResponse] = await Promise.all([
+        fetch(new URL("qa_pending.json", parsed), { cache: "no-store" }),
+        fetch(new URL("qa_approved.json", parsed), { cache: "no-store" })
+      ]);
+      if (!pendingResponse.ok || !approvedResponse.ok) throw new Error("Could not retrieve the previous Q&A records.");
+      const [pendingData, approvedData] = await Promise.all([pendingResponse.json(), approvedResponse.json()]);
+      const currentPending = await list("ktu:questions:pending");
+      const currentApproved = await list("ktu:questions:approved");
+      const ids = new Set([...currentPending, ...currentApproved].map(item => item.id));
+      let importedPending = 0;
+      let importedApproved = 0;
+      const convert = (data, status) => Array.isArray(data) ? data.map((item, index) => [String(index), item]) :
+        (data && typeof data === "object" ? Object.entries(data) : []);
+      for (const [id, value] of convert(pendingData, "pending")) {
+        if (!value || typeof value !== "object" || ids.has(id)) continue;
+        const item = {
+          id, category: String(value.category || "General").slice(0, 40),
+          title: String(value.title || "").slice(0, 180),
+          detail: String(value.detail || "").slice(0, 4000),
+          author: String(value.author || "Anonymous Student").slice(0, 60),
+          branch: String(value.branch || "KTU Student").slice(0, 60),
+          status: "pending", createdAt: value.createdAt || new Date().toISOString()
+        };
+        if (item.title.length < 5) continue;
+        await redis(["LPUSH", "ktu:questions:pending", JSON.stringify(item)]);
+        ids.add(id); importedPending++;
+      }
+      for (const [id, value] of convert(approvedData, "approved")) {
+        if (!value || typeof value !== "object" || ids.has(id)) continue;
+        const item = {
+          id, category: String(value.category || "General").slice(0, 40),
+          title: String(value.title || "").slice(0, 180),
+          detail: String(value.detail || "").slice(0, 4000),
+          author: String(value.author || "Anonymous Student").slice(0, 60),
+          branch: String(value.branch || "KTU Student").slice(0, 60),
+          status: "approved", answer: String(value.answer || "").slice(0, 5000),
+          createdAt: value.createdAt || new Date().toISOString(),
+          answeredAt: value.answeredAt || new Date().toISOString()
+        };
+        if (item.title.length < 5) continue;
+        await redis(["LPUSH", "ktu:questions:approved", JSON.stringify(item)]);
+        ids.add(id); importedApproved++;
+      }
+      return json(res, 200, { success: true, importedPending, importedApproved });
+    }
+
     const pending = await list("ktu:questions:pending");
     const target = pending.find(item => item.id === body.id);
     if (!target) return json(res, 404, { error: "That question is no longer pending." });

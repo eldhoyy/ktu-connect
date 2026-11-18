@@ -40,6 +40,7 @@ Add these environment variables in **Vercel → Project → Settings → Environ
 | `UPSTASH_REDIS_REST_URL` | Upstash Redis REST URL |
 | `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis REST token |
 | `LEGACY_NOTICES_URL` | Temporary previous notice feed URL, ending in `/ktu_notices.json`; remove this variable after importing old notices |
+| `LEGACY_QA_BASE_URL` | Temporary previous realtime-database base URL, ending at the database root; remove after importing old questions |
 
 Create a GitHub OAuth App with the callback URL:
 
@@ -49,7 +50,7 @@ The OAuth app needs the `public_repo` scope so the administrator can update this
 
 Create an Upstash Redis database and copy its REST URL and token directly into Vercel's environment-variable settings. Do not put them in `config.js`.
 
-For a one-time notice migration, set `LEGACY_NOTICES_URL` to the previous public notice-feed URL in Vercel, redeploy, sign in to the notice board, and use **Import Previous Notices**. This imports old notices without duplicating IDs already in the new store. Remove `LEGACY_NOTICES_URL` from Vercel after the import.
+For a one-time notice migration, set `LEGACY_NOTICES_URL` to the previous public notice-feed URL in Vercel, redeploy, sign in to the notice board, and use **Import Previous Notices**. This imports old notices without duplicating IDs already in the new store. Remove `LEGACY_NOTICES_URL` from Vercel after the import. For previous community Q&A, set `LEGACY_QA_BASE_URL` to the old database root, sign in on the Doubts page, and use **Import Previous Questions**. Remove that variable after the import.
 
 After adding or changing environment variables, redeploy the Vercel project for the changes to take effect. Until these services are configured, the static resource pages and bundled notices remain available, while admin login and community submission will show a configuration/unavailable message.
 

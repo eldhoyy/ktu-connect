@@ -166,14 +166,17 @@
                 <div id="admin-auth-box" class="mb-6 inner-glass p-5 rounded-xl flex flex-col sm:flex-row justify-between items-center gap-3">
                     <p class="text-xs font-bold text-slate-600">Admin sign-in required to access moderation queue.</p>
                     <button onclick="adminGoogleLogin()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow-md flex items-center gap-2 transition-all">
-                        <i class="fab fa-google"></i> Sign In with Google
+                        <i class="fab fa-github"></i> Sign in with GitHub
                     </button>
                 </div>
 
                 <!-- Logged In Status Banner -->
                 <div id="admin-logged-box" class="hidden mb-6 inner-glass p-4 rounded-xl flex justify-between items-center bg-purple-50/50 border border-purple-200">
                     <span id="admin-user-info" class="text-xs font-bold text-purple-800"></span>
-                    <button onclick="adminLogout()" class="text-xs font-bold text-rose-600 hover:underline">Log Out</button>
+                    <div class="flex items-center gap-3">
+                        <button onclick="migrateLegacyQuestions()" class="text-xs font-bold text-indigo-600 hover:underline">Import Previous Questions</button>
+                        <button onclick="adminLogout()" class="text-xs font-bold text-rose-600 hover:underline">Log Out</button>
+                    </div>
                 </div>
 
                 <!-- Moderation Queue -->
@@ -315,7 +318,7 @@
                     href = 'https://' + href;
                 }
 
-                return `<a href="${href}" target="_blank" rel="noopener noreferrer" class="text-blue-600 font-bold underline hover:text-blue-800 break-all transition-colors">${cleanUrl}</a>${trailingPunctuation}`;
+                return `<a href="${escapeHTML(href)}" target="_blank" rel="noopener noreferrer" class="text-blue-600 font-bold underline hover:text-blue-800 break-all transition-colors">${escapeHTML(cleanUrl)}</a>${escapeHTML(trailingPunctuation)}`;
             });
 
             // 3. Preserve paragraph breaks
@@ -609,6 +612,22 @@
                     '<p class="text-xs font-bold text-rose-500 text-center py-4">Moderation queue unavailable. Check server configuration.</p>';
             }
         }
+
+        window.migrateLegacyQuestions = async function() {
+            if (!confirm('Import the previous pending and approved community questions? Existing IDs will not be duplicated.')) return;
+            try {
+                const response = await fetch('/api/questions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'migrateLegacy' })
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || 'Import failed.');
+                await listenToAdminQueue();
+                await listenToApprovedQuestions();
+                alert(`Imported ${data.importedPending} pending and ${data.importedApproved} approved questions.`);
+            } catch (error) { alert(error.message); }
+        };
 
         window.approveQuestion = async function(id) {
             const replyText = document.getElementById(`reply-${id}`).value.trim();
