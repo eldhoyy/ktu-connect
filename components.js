@@ -376,7 +376,7 @@ window.KTUFlow = (function() {
             const showLatestNoticeAlert = async () => {
                 if (this.isInputFocused) { setTimeout(showLatestNoticeAlert, 4000); return; }
                 try {
-                    const response = await fetch('/notices-store.json', { cache: 'no-store' });
+                    const response = await fetch('/api/notices', { cache: 'no-store' });
                     if (!response.ok) return;
                     const notices = await response.json();
                     if (!Array.isArray(notices) || !notices.length) return;

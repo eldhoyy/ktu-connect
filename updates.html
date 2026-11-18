@@ -444,7 +444,7 @@
 
         async function listenToNotices() {
             try {
-                const response = await fetch('/notices-store.json', { cache: 'no-store' });
+                const response = await fetch('/api/notices', { cache: 'no-store' });
                 if (!response.ok) throw new Error('Notice feed unavailable');
                 const data = await response.json();
                 allNotices = Array.isArray(data) ? data : [];
@@ -767,7 +767,7 @@
             if (!confirm('Import existing notices from the previous notice service into KTU Connect? Existing notices will not be duplicated.')) return;
             try {
                 const result = await adminRequest('migrateLegacy');
-                const response = await fetch('/notices-store.json?refresh=' + Date.now(), { cache: 'no-store' });
+                const response = await fetch('/api/notices?refresh=' + Date.now(), { cache: 'no-store' });
                 if (response.ok) {
                     const fresh = await response.json();
                     if (Array.isArray(fresh)) allNotices = fresh;
