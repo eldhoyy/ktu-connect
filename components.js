@@ -1399,19 +1399,7 @@ function loadNavigation(activePage, basePath = '', isBlog = false) {
     }
 
     container.classList.remove('relative');
-    container.classList.add('sticky', 'top-0', 'z-50', 'w-full');
-
-    const LIGHT_LOGO_SRC = '/k.png';
-    const DARK_LOGO_SRC  = '/assets/k-logo-darktheme.png';
-
-    const preloadDarkLogo = new Image();
-    preloadDarkLogo.src = DARK_LOGO_SRC;
-
-    const initialLogoSrc = document.documentElement.classList.contains('dark')
-        ? DARK_LOGO_SRC
-        : LIGHT_LOGO_SRC;
-
-    const logoExtension = isBlog ? ' <span class="text-slate-400 font-medium ml-1">| Blog</span>' : '';
+    container.classList.add('sticky', 'top-0', 'z-50', 'w-full');const logoExtension = isBlog ? ' <span class="text-slate-400 font-medium ml-1">| Blog</span>' : '';
 
     const navItemClass = (key) => activePage === key
         ? 'drawer-link-active font-extrabold'
@@ -1427,7 +1415,7 @@ function loadNavigation(activePage, basePath = '', isBlog = false) {
             
             <div class="drawer-header p-5 flex justify-between items-center shrink-0">
                 <div class="drawer-brand-wrap flex items-center gap-2">
-                    <img src="${initialLogoSrc}" alt="Kerala Timetable Logo" class="kt-brand-logo w-6 h-6 object-contain shrink-0" width="24" height="24" />
+                    
                     <span class="text-base font-extrabold text-slate-900 tracking-tight leading-none whitespace-nowrap">Kerala <span class="text-indigo-600">Timetable</span></span>
                 </div>
                 <button id="close-menu-btn" aria-label="Close menu" class="w-8 h-8 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-rose-500 transition-all rounded-full bg-white/70 dark:bg-white/10 shadow-sm active:scale-95 focus:outline-none">
@@ -1510,7 +1498,7 @@ function loadNavigation(activePage, basePath = '', isBlog = false) {
                         <i class="fas fa-bars text-lg sm:text-xl"></i>
                     </button>
                     <a href="/index.html" class="flex items-center gap-2 hover:opacity-80 transition-opacity min-w-0">
-                        <img src="${initialLogoSrc}" alt="Kerala Timetable Logo" class="kt-brand-logo w-6 h-6 sm:w-7 sm:h-7 object-contain shrink-0" width="28" height="28" />
+                        
                         <h1 class="text-[18px] sm:text-2xl font-extrabold tracking-tight text-slate-900 leading-none whitespace-nowrap truncate">Kerala <span class="text-indigo-600">Timetable</span>${logoExtension}</h1>
                     </a>
                 </div>
@@ -1568,13 +1556,7 @@ function loadNavigation(activePage, basePath = '', isBlog = false) {
                 : '<i class="fas fa-moon text-[13px] text-slate-600"></i>';
         });
 
-        const targetLogo = isDark ? DARK_LOGO_SRC : LIGHT_LOGO_SRC;
-        document.querySelectorAll('.kt-brand-logo').forEach(img => {
-            if (img.getAttribute('src') !== targetLogo) {
-                img.setAttribute('src', targetLogo);
-            }
-        });
-    }
+}
     
     updateThemeIconsAndLogo();
     
