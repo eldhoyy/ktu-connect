@@ -1400,11 +1400,6 @@ function loadNavigation(activePage, basePath = '', isBlog = false) {
                     <span class="drawer-item-text">Previous Papers</span>
                 </a>
 
-                <a href="/activitypoints.html" style="--stagger: 5;" class="drawer-anim-item flex items-center gap-3 px-3 py-2.5 rounded-2xl text-[15px] active:scale-[0.98] ${navItemClass('activity')}">
-                    <span class="drawer-icon-box w-8 h-8 rounded-xl flex items-center justify-center shrink-0"><i class="fas fa-award text-xs"></i></span>
-                    <span class="drawer-item-text">Activity Points</span>
-                </a>
-
                 <p style="--stagger: 6;" class="drawer-anim-item nav-section-label px-3 pt-4 pb-1 text-[10px] font-extrabold uppercase">Community & Updates</p>
 
                 <a href="/doubts.html" style="--stagger: 7;" class="drawer-anim-item flex items-center gap-3 px-3 py-2.5 rounded-2xl text-[15px] active:scale-[0.98] ${navItemClass('qa')}">
