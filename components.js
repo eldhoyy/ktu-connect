@@ -5,7 +5,6 @@ window.KTUFlow = (function() {
     const PROFILE_KEY = 'ktu_flow_profile_v2';
     const RECENT_KEY = 'ktu_flow_recent_v2';
     const CATALOG_CACHE_KEY = 'ktu_flow_catalog_cache_v2';
-    const FIREBASE_NOTICES_URL = 'https://keralatimetable-5e155-default-rtdb.asia-southeast1.firebasedatabase.app/ktu_notices.json';
 
     let memoryCatalog = null;
     let prefetchedUrls = new Set();
@@ -374,44 +373,18 @@ window.KTUFlow = (function() {
         initNoticeWatcher() {
             if (this._noticeWatcherStarted) return;
             this._noticeWatcherStarted = true;
-
             const showLatestNoticeAlert = async () => {
-                if (this.isInputFocused) {
-                    setTimeout(showLatestNoticeAlert, 4000);
-                    return;
-                }
-
+                if (this.isInputFocused) { setTimeout(showLatestNoticeAlert, 4000); return; }
                 try {
-                    const res = await fetch(FIREBASE_NOTICES_URL, { cache: 'no-store' });
-                    let notices = [];
-
-                    if (res.ok) {
-                        const data = await res.json();
-                        if (data && typeof data === 'object') {
-                            notices = Object.keys(data).map(id => ({ id, ...data[id] }));
-                        }
-                    }
-
-                    if (notices.length === 0 && Array.isArray(window.KTU_NOTICES) && window.KTU_NOTICES.length > 0) {
-                        notices = window.KTU_NOTICES.map((n, i) => ({ id: `local-${i}`, ...n }));
-                    }
-
-                    if (notices.length === 0) return;
-
-                    notices.sort((a, b) => {
-                        const tA = new Date(a.updatedAt || a.createdAt || a.date).getTime() || 0;
-                        const tB = new Date(b.updatedAt || b.createdAt || b.date).getTime() || 0;
-                        return tB - tA;
-                    });
-
+                    const response = await fetch('/notices-store.json', { cache: 'no-store' });
+                    if (!response.ok) return;
+                    const notices = await response.json();
+                    if (!Array.isArray(notices) || !notices.length) return;
+                    notices.sort((a, b) => new Date(b.updatedAt || b.date) - new Date(a.updatedAt || a.date));
                     const latest = notices[0];
-                    if (latest && latest.title) {
-                        const redirectUrl = `/updates.html?id=${encodeURIComponent(latest.id)}`;
-                        this.capsule('alert', latest.title, redirectUrl);
-                    }
-                } catch (e) {}
+                    if (latest?.title) this.capsule('alert', latest.title, `/updates.html?id=${encodeURIComponent(latest.id)}`);
+                } catch (error) {}
             };
-
             setTimeout(showLatestNoticeAlert, 12000);
         }
     };

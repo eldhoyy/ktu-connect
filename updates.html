@@ -183,9 +183,7 @@
                 <button onclick="openNoticeEditor()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white rounded-xl text-xs font-bold shadow-sm transition-all flex items-center gap-1.5">
                     <i class="fas fa-plus"></i> Post Notice
                 </button>
-                <button id="btn-seed-data" onclick="seedNoticesToFirebase()" class="px-3 py-1.5 bg-white/80 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-white border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold transition-all active:scale-95">
-                    Sync notices-data.js
-                </button>
+                
                 <button onclick="adminLogout()" class="px-3 py-1.5 text-xs font-bold text-rose-600 hover:bg-rose-500/10 rounded-xl transition-all">
                     Sign Out
                 </button>
@@ -274,9 +272,9 @@
                 </div>
 
                 <div id="admin-auth-box" class="inner-glass p-4 rounded-xl flex flex-col sm:flex-row justify-between items-center gap-3">
-                    <p class="text-xs font-bold text-slate-600 text-center sm:text-left">Google authentication required for authorized editors.</p>
+                    <p class="text-xs font-bold text-slate-600 text-center sm:text-left">Secure GitHub authentication required for the authorised administrator.</p>
                     <button onclick="adminGoogleLogin()" class="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 active:scale-95 text-white font-bold px-4 py-2 rounded-xl text-xs shadow transition-all flex items-center justify-center gap-2 shrink-0">
-                        <i class="fab fa-google"></i> Sign In with Google
+                        <i class="fab fa-github"></i> Sign in with GitHub
                     </button>
                 </div>
             </div>
@@ -406,35 +404,12 @@
     <script src="notices-data.js"></script>
     
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, push, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-
-        // --- FIREBASE CONFIGURATION ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyAqJ6wDmjJKCVip3dhgBDi35BzxC0QhIac",
-            authDomain: "keralatimetable-5e155.firebaseapp.com",
-            databaseURL: "https://keralatimetable-5e155-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "keralatimetable-5e155",
-            storageBucket: "keralatimetable-5e155.firebasestorage.app",
-            messagingSenderId: "95059742429",
-            appId: "1:95059742429:web:6ebcae342db9179b509534",
-            measurementId: "G-G2WYE8SQ4S"
-        };
-
-        const ADMIN_EMAIL = window.KTU_CONNECT_CONFIG?.adminEmail || "";
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
-
-        // State Variables
         let allNotices = [];
         let currentRenderedNotices = [];
         let currentFilter = 'All';
         let isAdminLoggedIn = false;
         let initialLoadComplete = false;
+
 
         // Safe HTML Escaping Helper
         function escapeHTML(str = '') {
@@ -464,48 +439,36 @@
         }
         syncKTUFlowProfilePill();
 
-        // --- REALTIME DATABASE LISTENER (/ktu_notices) ---
-        function listenToNotices() {
-            const noticesRef = ref(db, 'ktu_notices');
-            onValue(noticesRef, (snapshot) => {
-                const data = snapshot.val();
-                allNotices = [];
-                
-                if (data) {
-                    Object.keys(data).forEach(id => {
-                        allNotices.push({ id, ...data[id] });
-                    });
-                } else if (window.KTU_NOTICES && window.KTU_NOTICES.length > 0) {
-                    allNotices = window.KTU_NOTICES.map((n, i) => ({ id: `local-${i}`, ...n }));
+        async function listenToNotices() {
+            try {
+                const response = await fetch('/notices-store.json', { cache: 'no-store' });
+                if (!response.ok) throw new Error('Notice feed unavailable');
+                const data = await response.json();
+                allNotices = Array.isArray(data) ? data : [];
+            } catch (error) {
+                console.warn('Using bundled notices because the live feed is unavailable.', error);
+                allNotices = (window.KTU_NOTICES || []).map((notice, index) => ({ id: `local-${index}`, ...notice }));
+            }
+            allNotices.sort((a, b) => new Date(b.updatedAt || b.date) - new Date(a.updatedAt || a.date));
+            filterAndRender();
+            if (allNotices.length) {
+                const latest = allNotices[0];
+                localStorage.setItem('ktu_flow_last_seen_notice_v2', `${latest.id}_${latest.updatedAt || latest.date}`);
+            }
+            if (!initialLoadComplete) {
+                initialLoadComplete = true;
+                const params = new URLSearchParams(location.search);
+                const id = params.get('id');
+                const openLatest = params.get('open');
+                if (id) {
+                    const index = currentRenderedNotices.findIndex(item => item.id === id);
+                    if (index >= 0) setTimeout(() => openNoticeModal(index), 250);
+                } else if (openLatest === 'latest' && currentRenderedNotices.length) {
+                    setTimeout(() => openNoticeModal(0), 250);
+                } else {
+                    window.KTUFlow?.capsule('success', `${allNotices.length} Official Notices Ready`);
                 }
-
-                // Sort by Date (Newest first)
-                allNotices.sort((a, b) => new Date(b.date) - new Date(a.date));
-                filterAndRender();
-
-                // Mark latest notice as seen in localStorage so Live Capsule won't repeat it on other pages
-                if (allNotices.length > 0) {
-                    const latest = allNotices[0];
-                    const latestKey = `${latest.id}_${latest.updatedAt || latest.date}`;
-                    localStorage.setItem('ktu_flow_last_seen_notice_v2', latestKey);
-                }
-
-                if (!initialLoadComplete) {
-                    initialLoadComplete = true;
-                    const params = new URLSearchParams(window.location.search);
-                    const targetId = params.get('id');
-                    const openLatest = params.get('open');
-
-                    if (targetId) {
-                        const idx = currentRenderedNotices.findIndex(n => n.id === targetId);
-                        if (idx !== -1) setTimeout(() => openNoticeModal(idx), 250);
-                    } else if (openLatest === 'latest' && currentRenderedNotices.length > 0) {
-                        setTimeout(() => openNoticeModal(0), 250);
-                    } else {
-                        window.KTUFlow?.capsule('success', `${allNotices.length} Official Notices Ready`);
-                    }
-                }
-            });
+            }
         }
 
         // --- RENDER NOTICE CARDS ---
@@ -754,44 +717,43 @@
             document.getElementById('editorModal').classList.remove('hidden');
         };
 
+        async function adminRequest(action, payload = {}) {
+            const response = await fetch('/api/admin/notices', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action, ...payload })
+            });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(data.error || 'Request failed.');
+            return data;
+        }
+
         window.saveNotice = async function(e) {
             e.preventDefault();
             const btn = document.getElementById('btnSubmitNotice');
             btn.disabled = true;
             btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Publishing...`;
-            window.KTUFlow?.capsule('loading', 'Publishing Notice to Live Feed...');
-
             const editId = document.getElementById('editNoticeId').value;
-            const title = document.getElementById('formTitle').value.trim();
-            const date = document.getElementById('formDate').value;
-            const link = document.getElementById('formLink').value.trim();
-            const details = document.getElementById('formDetails').value.trim();
             const tagsInput = document.getElementById('formTags').value.trim();
-
-            const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(Boolean) : [document.getElementById('formPrimaryTag').value];
-
-            const noticeData = {
-                title,
-                date,
-                link,
-                details,
-                tags,
-                updatedAt: new Date().toISOString()
+            const notice = {
+                title: document.getElementById('formTitle').value.trim(),
+                date: document.getElementById('formDate').value,
+                link: document.getElementById('formLink').value.trim(),
+                details: document.getElementById('formDetails').value.trim(),
+                tags: tagsInput ? tagsInput.split(',').map(tag => tag.trim()).filter(Boolean) : [document.getElementById('formPrimaryTag').value]
             };
-
             try {
-                if (editId && !editId.startsWith('local-')) {
-                    await set(ref(db, `ktu_notices/${editId}`), noticeData);
-                } else {
-                    const newRef = push(ref(db, 'ktu_notices'));
-                    await set(newRef, { ...noticeData, createdAt: new Date().toISOString() });
-                }
+                const result = await adminRequest(editId ? 'update' : 'create', { id: editId || undefined, notice });
+                if (editId) {
+                    const index = allNotices.findIndex(item => item.id === editId);
+                    if (index >= 0) allNotices[index] = result.notice;
+                } else allNotices.unshift(result.notice);
+                allNotices.sort((a, b) => new Date(b.updatedAt || b.date) - new Date(a.updatedAt || a.date));
+                filterAndRender();
                 closeNoticeEditor();
-                // Preview the full untruncated headline running right-to-left in the Live Capsule
-                window.KTUFlow?.capsule('alert', title);
-            } catch (err) {
-                console.error("Error saving notice:", err);
-                window.KTUFlow?.toast("Failed to publish notice", "error");
+                window.KTUFlow?.capsule('success', 'Notice published successfully');
+            } catch (error) {
+                window.KTUFlow?.toast(error.message, 'error');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = `<i class="fas fa-check"></i> Publish to Feed`;
@@ -799,88 +761,47 @@
         };
 
         window.deleteNotice = async function(id) {
-            if (id.startsWith('local-')) {
-                window.KTUFlow?.toast("Sync to Firebase first to manage online", "amber");
-                return;
-            }
-            if (confirm("Are you sure you want to delete this announcement?")) {
-                try {
-                    await remove(ref(db, `ktu_notices/${id}`));
-                    window.KTUFlow?.toast("Announcement deleted", "amber");
-                } catch (err) {
-                    window.KTUFlow?.toast("Delete failed", "error");
-                }
-            }
-        };
-
-        // 1-Click Database Migration Tool for Admins
-        window.seedNoticesToFirebase = async function() {
-            if (!confirm("This will import notices from notices-data.js into Firebase. Continue?")) return;
-            if (!window.KTU_NOTICES || window.KTU_NOTICES.length === 0) {
-                window.KTUFlow?.toast("No notices found in notices-data.js", "error");
-                return;
-            }
-
-            window.KTUFlow?.capsule('loading', 'Syncing notices-data.js to Firebase...');
+            if (!confirm('Are you sure you want to delete this announcement?')) return;
             try {
-                for (const item of window.KTU_NOTICES) {
-                    const newRef = push(ref(db, 'ktu_notices'));
-                    await set(newRef, {
-                        title: item.title,
-                        date: item.date,
-                        link: item.link || "https://ktu.edu.in",
-                        details: item.details || "",
-                        tags: item.tags || ["General"],
-                        createdAt: new Date().toISOString()
-                    });
-                }
-                window.KTUFlow?.toast("All notices synced to Firebase!", "success");
-            } catch (err) {
-                window.KTUFlow?.toast("Migration error", "error");
+                await adminRequest('delete', { id });
+                allNotices = allNotices.filter(item => item.id !== id);
+                filterAndRender();
+                window.KTUFlow?.toast('Announcement deleted', 'success');
+            } catch (error) {
+                window.KTUFlow?.toast(error.message, 'error');
             }
         };
 
-        // --- ADMIN AUTH ---
+        // --- SECURE GITHUB ADMIN AUTH ---
         window.toggleAdminPanel = function() {
             const panel = document.getElementById('admin-panel');
             panel.classList.toggle('hidden');
-            if (!panel.classList.contains('hidden')) {
-                panel.scrollIntoView({ behavior: 'smooth' });
-            }
+            if (!panel.classList.contains('hidden')) panel.scrollIntoView({ behavior: 'smooth' });
         };
 
-        window.adminGoogleLogin = async function() {
+        async function refreshAdminSession() {
             try {
-                const result = await signInWithPopup(auth, provider);
-                if (result.user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
-                    setAdminLoggedInUI();
-                    window.KTUFlow?.toast("Admin Mode Activated", "success");
-                } else {
-                    window.KTUFlow?.toast("Access denied: Admin only", "error");
-                    await signOut(auth);
+                const response = await fetch('/api/auth/me', { cache: 'no-store' });
+                const data = await response.json();
+                if (data.authenticated) {
+                    isAdminLoggedIn = true;
+                    document.getElementById('admin-actions-bar').classList.remove('hidden');
+                    document.getElementById('admin-panel').classList.add('hidden');
+                    const authBox = document.getElementById('admin-auth-box');
+                    authBox.innerHTML = '<p class="text-xs font-bold text-emerald-700">Signed in securely as the authorised KTU Connect administrator.</p>';
+                    filterAndRender();
                 }
-            } catch (err) {
-                window.KTUFlow?.toast("Google Sign-In cancelled", "amber");
-            }
-        };
+            } catch (error) { console.warn('Admin session check failed.', error); }
+        }
 
+        window.adminGoogleLogin = function() { location.href = '/api/auth/login'; };
         window.adminLogout = async function() {
-            await signOut(auth);
+            await fetch('/api/auth/logout', { method: 'POST' });
             location.reload();
         };
-
-        onAuthStateChanged(auth, (user) => {
-            if (user && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
-                setAdminLoggedInUI();
-            }
-        });
-
-        function setAdminLoggedInUI() {
-            isAdminLoggedIn = true;
-            document.getElementById('admin-actions-bar').classList.remove('hidden');
-            document.getElementById('admin-panel').classList.add('hidden');
-            filterAndRender();
-        }
+        refreshAdminSession();
+        const adminError = new URLSearchParams(location.search).get('admin_error');
+        if (adminError) window.KTUFlow?.toast(adminError, 'error');
 
         // --- FILTER PILL CLICK HANDLERS ---
         const filterBtns = document.querySelectorAll('.filter-btn');
