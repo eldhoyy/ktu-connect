@@ -60,7 +60,45 @@ module.exports = async function handler(req, res) {
 
     let result;
     const now = new Date().toISOString();
-    if (body.action === "create") {
+    if (body.action === "migrateLegacy") {
+      const legacyUrl = process.env.LEGACY_NOTICES_URL;
+      if (!legacyUrl) return json(res, 400, { error: "Temporary legacy notice source is not configured." });
+      const parsedLegacyUrl = new URL(legacyUrl);
+      const allowedHost = parsedLegacyUrl.hostname.endsWith(".firebasedatabase.app") || parsedLegacyUrl.hostname.endsWith(".firebaseio.com");
+      if (!allowedHost || !parsedLegacyUrl.pathname.endsWith("/ktu_notices.json") || parsedLegacyUrl.protocol !== "https:") {
+        return json(res, 400, { error: "Legacy notice source URL is not valid." });
+      }
+      const legacyResponse = await fetch(parsedLegacyUrl.toString(), { cache: "no-store" });
+      if (!legacyResponse.ok) throw new Error("Could not retrieve the previous notice feed.");
+      const legacyData = await legacyResponse.json();
+      if (!legacyData || typeof legacyData !== "object") throw new Error("The previous notice feed has an invalid format.");
+      const entries = Array.isArray(legacyData) ? legacyData.map((value, index) => [String(index), value]) : Object.entries(legacyData);
+      const existingIds = new Set(notices.map(item => item.id));
+      let imported = 0;
+      for (const [legacyId, value] of entries) {
+        if (!value || typeof value !== "object" || existingIds.has(legacyId)) continue;
+        const dateValue = String(value.date || value.createdAt || "").slice(0, 10);
+        const tagsValue = Array.isArray(value.tags) ? value.tags : (typeof value.tags === "string" ? value.tags.split(",").map(tag => tag.trim()) : ["General"]);
+        const clean = validateNotice({
+          title: value.title,
+          date: dateValue,
+          link: value.link || "https://ktu.edu.in/Menu/announcements",
+          details: value.details || "",
+          tags: tagsValue
+        });
+        notices.push({
+          id: legacyId,
+          ...clean,
+          createdAt: value.createdAt || now,
+          updatedAt: value.updatedAt || value.createdAt || now
+        });
+        existingIds.add(legacyId);
+        imported++;
+      }
+      notices.sort((a, b) => new Date(b.updatedAt || b.date) - new Date(a.updatedAt || a.date));
+      if (!imported) return json(res, 200, { success: true, imported: 0, count: notices.length, message: "No new previous notices were found." });
+      result = { imported };
+    } else if (body.action === "create") {
       const clean = validateNotice(body.notice);
       result = { id: `notice-${crypto.randomUUID()}`, ...clean, createdAt: now, updatedAt: now };
       notices.unshift(result);
@@ -83,13 +121,15 @@ module.exports = async function handler(req, res) {
     await github(session.accessToken, `/repos/${OWNER}/${REPO}/contents/${FILE_PATH}`, {
       method: "PUT",
       body: JSON.stringify({
-        message: `KTU Connect: ${body.action} notice`,
+        message: body.action === "migrateLegacy" ? "KTU Connect: import previous notices" : `KTU Connect: ${body.action} notice`,
         content,
         branch: "main",
         ...(file?.sha ? { sha: file.sha } : {})
       })
     });
-    return json(res, 200, { success: true, action: body.action, notice: result, count: notices.length });
+    return json(res, 200, body.action === "migrateLegacy"
+      ? { success: true, imported: result.imported, count: notices.length }
+      : { success: true, action: body.action, notice: result, count: notices.length });
   } catch (error) {
     console.error("Notice update failed:", error.message);
     const status = error.status === 409 || error.status === 422 ? 409 : 400;

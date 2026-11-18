@@ -183,6 +183,9 @@
                 <button onclick="openNoticeEditor()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white rounded-xl text-xs font-bold shadow-sm transition-all flex items-center gap-1.5">
                     <i class="fas fa-plus"></i> Post Notice
                 </button>
+                <button onclick="migrateLegacyNotices()" class="px-3 py-1.5 bg-white/80 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-bold transition-all">
+                    Import Previous Notices
+                </button>
                 
                 <button onclick="adminLogout()" class="px-3 py-1.5 text-xs font-bold text-rose-600 hover:bg-rose-500/10 rounded-xl transition-all">
                     Sign Out
@@ -757,6 +760,22 @@
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = `<i class="fas fa-check"></i> Publish to Feed`;
+            }
+        };
+
+        window.migrateLegacyNotices = async function() {
+            if (!confirm('Import existing notices from the previous notice service into KTU Connect? Existing notices will not be duplicated.')) return;
+            try {
+                const result = await adminRequest('migrateLegacy');
+                const response = await fetch('/notices-store.json?refresh=' + Date.now(), { cache: 'no-store' });
+                if (response.ok) {
+                    const fresh = await response.json();
+                    if (Array.isArray(fresh)) allNotices = fresh;
+                }
+                filterAndRender();
+                window.KTUFlow?.toast(`${result.imported} previous notices imported`, 'success');
+            } catch (error) {
+                window.KTUFlow?.toast(error.message, 'error');
             }
         };
 
