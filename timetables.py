@@ -1173,7 +1173,7 @@ def fetch_timetables_from_mirror_api() -> list:
 
 
 def process_downloaded_pdf(save_path, filename, title, date_str, html_dir):
-    """Runs AI extraction, generates the S3-Template Liquid Glass HTML page, updates config, and sends push notification."""
+    """Runs AI extraction, generates the S3-Template Liquid Glass HTML page, updates config and writes the generated timetable files."""
     relative_pdf_link = f"downloads_timetable/{filename}"
     ai_extracted_data = extract_dashboard_data_with_ai(save_path, title, relative_pdf_link)
 
@@ -1456,4 +1456,4 @@ if __name__ == "__main__":
         print("No new timetables found today.")
     else:
         for r in results:
-            print(f"[{r['date']}] {r['title']} -> Page & Config Updated (Push Sent)")
+            print(f"[{r['date']}] {r['title']} -> Page & Config Updated")
