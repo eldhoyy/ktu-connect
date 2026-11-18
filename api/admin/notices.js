@@ -1,5 +1,5 @@
 const crypto = require("crypto");
-const { getSession, sameOrigin, json } = require("../_lib/auth");
+const { getSession, sameOrigin, json } = require("../../lib/admin-auth");
 
 const OWNER = "eldhoyy";
 const REPO = "ktu-connect";

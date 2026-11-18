@@ -1,4 +1,4 @@
-const { clearCookie, SESSION_COOKIE, sameOrigin, json } = require("../_lib/auth");
+const { clearCookie, SESSION_COOKIE, sameOrigin, json } = require("../../lib/admin-auth");
 
 module.exports = function handler(req, res) {
   if (req.method !== "POST") return json(res, 405, { error: "Method not allowed." });

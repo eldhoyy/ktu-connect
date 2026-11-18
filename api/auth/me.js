@@ -1,4 +1,4 @@
-const { getSession, json } = require("../_lib/auth");
+const { getSession, json } = require("../../lib/admin-auth");
 
 module.exports = function handler(req, res) {
   if (req.method !== "GET") return json(res, 405, { error: "Method not allowed." });

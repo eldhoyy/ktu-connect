@@ -2,7 +2,7 @@ const crypto = require("crypto");
 const {
   STATE_COOKIE, SESSION_COOKIE, parseCookies, cookie, clearCookie,
   sealSession, json
-} = require("../_lib/auth");
+} = require("../../lib/admin-auth");
 
 module.exports = async function handler(req, res) {
   if (req.method !== "GET") return json(res, 405, { error: "Method not allowed." });

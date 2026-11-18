@@ -1,5 +1,5 @@
 const crypto = require("crypto");
-const { getSession, sameOrigin, json } = require("./_lib/auth");
+const { getSession, sameOrigin, json } = require("../lib/admin-auth");
 
 async function redis(command) {
   const url = process.env.UPSTASH_REDIS_REST_URL;
