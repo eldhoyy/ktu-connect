@@ -1480,7 +1480,7 @@ function loadNavigation(activePage, basePath = '', isBlog = false) {
                     </button>
                     <a href="/index.html" class="flex items-center gap-2 hover:opacity-80 transition-opacity min-w-0">
                         
-                        <h1 class="text-[18px] sm:text-2xl font-extrabold tracking-tight text-slate-900 leading-none whitespace-nowrap truncate">Kerala <span class="text-indigo-600">Timetable</span>${logoExtension}</h1>
+                        <h1 class="text-[18px] sm:text-2xl font-extrabold tracking-tight text-slate-900 leading-none whitespace-nowrap truncate">KTU <span class="text-indigo-600">Connect</span>${logoExtension}</h1>
                     </a>
                 </div>
 
