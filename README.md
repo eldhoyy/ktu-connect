@@ -52,7 +52,7 @@ Create an Upstash Redis database and copy its REST URL and token directly into V
 
 For a one-time notice migration, set `LEGACY_NOTICES_URL` to the previous public notice-feed URL in Vercel, redeploy, sign in to the notice board, and use **Import Previous Notices**. This imports old notices without duplicating IDs already in the new store. Remove `LEGACY_NOTICES_URL` from Vercel after the import. For previous community Q&A, set `LEGACY_QA_BASE_URL` to the old database root, sign in on the Doubts page, and use **Import Previous Questions**. Remove that variable after the import.
 
-After adding or changing environment variables, redeploy the Vercel project for the changes to take effect. Until these services are configured, the static resource pages and bundled notices remain available, while admin login and community submission will show a configuration/unavailable message.
+After adding or changing environment variables, redeploy the Vercel project for the changes to take effect. Then open `/api/health` on the deployed site to confirm the required configuration flags are true. This endpoint reveals only whether settings exist, never their values. Until these services are configured, the static resource pages and bundled notices remain available, while admin login and community submission will show a configuration/unavailable message.
 
 ## Existing integrations
 
