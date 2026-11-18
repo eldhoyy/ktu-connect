@@ -1416,7 +1416,7 @@ function loadNavigation(activePage, basePath = '', isBlog = false) {
             <div class="drawer-header p-5 flex justify-between items-center shrink-0">
                 <div class="drawer-brand-wrap flex items-center gap-2">
                     
-                    <span class="text-base font-extrabold text-slate-900 tracking-tight leading-none whitespace-nowrap">Kerala <span class="text-indigo-600">Timetable</span></span>
+                    <span class="text-base font-extrabold text-slate-900 tracking-tight leading-none whitespace-nowrap">KTU <span class="text-indigo-600">Connect</span></span>
                 </div>
                 <button id="close-menu-btn" aria-label="Close menu" class="w-8 h-8 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-rose-500 transition-all rounded-full bg-white/70 dark:bg-white/10 shadow-sm active:scale-95 focus:outline-none">
                     <i class="fas fa-times text-base"></i>
@@ -1548,7 +1548,7 @@ function loadNavigation(activePage, basePath = '', isBlog = false) {
     
     const themeBtns = document.querySelectorAll('.theme-toggle-btn');
     
-    function updateThemeIconsAndLogo() {
+    function updateThemeIcons() {
         const isDark = document.documentElement.classList.contains('dark');
         themeBtns.forEach(btn => {
             btn.innerHTML = isDark 
@@ -1558,14 +1558,14 @@ function loadNavigation(activePage, basePath = '', isBlog = false) {
 
 }
     
-    updateThemeIconsAndLogo();
+    updateThemeIcons();
     
     themeBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             document.documentElement.classList.toggle('dark');
             const isDark = document.documentElement.classList.contains('dark');
             localStorage.setItem('kt_theme', isDark ? 'dark' : 'light');
-            updateThemeIconsAndLogo();
+            updateThemeIcons();
             window.KTUFlow.capsule(isDark ? 'success' : 'amber', isDark ? 'Dark Theme enabled' : 'Light Theme enabled');
         });
     });
