@@ -5,7 +5,7 @@ window.KTUFlow = (function() {
     const PROFILE_KEY = 'ktu_flow_profile_v2';
     const RECENT_KEY = 'ktu_flow_recent_v2';
     const CATALOG_CACHE_KEY = 'ktu_flow_catalog_cache_v2';
-    const FIREBASE_NOTICES_URL = 'https://keralatimetable-5e155-default-rtdb.asia-southeast1.firebasedatabase.app/ktu_notices.json';
+    const FIREBASE_NOTICES_URL = '/notices.json';
 
     let memoryCatalog = null;
     let prefetchedUrls = new Set();
