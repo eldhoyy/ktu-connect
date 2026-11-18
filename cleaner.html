@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>KTU PDF Watermark Remover | Kerala Timetable Admin</title>
+    <title>KTU PDF Watermark Remover | KTU Connect Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -21,7 +21,7 @@
             </span>
             <h1 class="text-2xl font-black text-white">PDF Re-brander</h1>
             <p class="text-xs text-slate-400 mt-1">
-                Removes <code class="text-rose-400">ktunotes</code> watermarks & adds <span class="text-indigo-400 font-bold">Kerala Timetable</span> branding.
+                Removes old watermarks and applies KTU Connect document branding.
             </p>
         </div>
 
@@ -84,7 +84,7 @@
             btn.disabled = true;
             btnText.innerHTML = `<i class="fas fa-circle-notch fa-spin mr-1"></i> Processing in Cloud...`;
             statusBox.className = "mt-4 p-3 rounded-xl text-xs font-bold text-center bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 block";
-            statusBox.innerText = "16GB Server is stripping old watermarks and adding Kerala Timetable logo...";
+            statusBox.innerText = "16GB Server is stripping old watermarks and adding KTU Connect logo...";
 
             const formData = new FormData();
             if (fileInput) {
@@ -111,7 +111,7 @@
                 a.href = downloadUrl;
                 
                 // Get filename from header or default
-                let filename = "Cleaned_KeralaTimetable_Notes.pdf";
+                let filename = "Cleaned_KTU_Connect_Notes.pdf";
                 const disposition = response.headers.get('content-disposition');
                 if (disposition && disposition.includes('filename=')) {
                     filename = disposition.split('filename=')[1].replace(/["']/g, '');

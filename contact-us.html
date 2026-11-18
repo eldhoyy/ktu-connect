@@ -3,13 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
-    <meta name="google-site-verification" content="cPHgzg8741NBFQ5HszgVIPA3EMrKJLlj7IHcyLGM2Lo" />
-    
-    <title>Contact Us | Kerala Timetable</title>
-    <link rel="canonical" href="https://keralatimetable.in/contact-us.html" />
-    <meta name="description" content="Get in touch with the Kerala Timetable team. Request missing KTU question papers, contribute study notes, report website bugs, or inquire about collaborations.">
-    <link rel="icon" href="/favicon.png" type="image/png">
-
+    <title>Contact Us | KTU Connect</title>
+    <meta name="description" content="Get in touch with the KTU Connect team. Request missing KTU question papers, contribute study notes, report website bugs, or inquire about collaborations.">
     <script src="/tailwind-local.js" onerror="this.onerror=null;this.src='https://cdn.tailwindcss.com';"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -107,13 +102,13 @@
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6 spring-enter" style="animation-delay: 90ms;">
-            <a href="mailto:keralatimetable@gmail.com" class="inner-glass hover:border-indigo-400 rounded-2xl p-3.5 flex items-center gap-3 group">
+            <a href="#" class="inner-glass hover:border-indigo-400 rounded-2xl p-3.5 flex items-center gap-3 group">
                 <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-200 group-hover:scale-105 transition-transform">
                     <i class="fas fa-envelope text-sm"></i>
                 </div>
                 <div class="min-w-0">
                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Email Support</p>
-                    <p class="text-xs font-extrabold text-slate-800 truncate">keralatimetable@gmail.com</p>
+                    <p class="text-xs font-extrabold text-slate-800 truncate">Contact details coming soon</p>
                 </div>
             </a>
 
@@ -212,7 +207,7 @@
                     </div>
                     <h3 class="text-xl sm:text-2xl font-black text-slate-900 mb-2">Message Delivered!</h3>
                     <p class="text-xs sm:text-sm text-slate-500 max-w-md leading-relaxed">
-                        Thank you for reaching out to Kerala Timetable. Our team has received your message and will get back to you shortly.
+                        Thank you for reaching out to KTU Connect. Our team has received your message and will get back to you shortly.
                     </p>
                     <button type="button" onclick="resetContactView()" class="mt-6 px-5 py-2.5 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md transition-all active:scale-95">
                         Send Another Message
@@ -225,7 +220,7 @@
 
     <footer class="mt-auto border-t border-slate-200/60 bg-white/60 backdrop-blur-md py-6 sm:py-8 text-center relative z-10">
         <div class="max-w-3xl mx-auto px-4">
-            <h3 class="text-slate-800 font-bold text-sm sm:text-base mb-1">Kerala Timetable</h3>
+            <h3 class="text-slate-800 font-bold text-sm sm:text-base mb-1">KTU Connect</h3>
             <p class="text-slate-500 text-xs leading-relaxed max-w-lg mx-auto">
                 Independent educational utility providing fast university schedules and academic resources for KTU students.
             </p>
@@ -282,7 +277,7 @@
 
             btn.innerHTML = '<i class="fas fa-circle-notch fa-spin text-xs"></i> <span>Sending to Team...</span>';
             btn.disabled = true;
-            window.KTUFlow?.capsule('loading', 'Sending message to Kerala Timetable...');
+            window.KTUFlow?.capsule('loading', 'Sending message to KTU Connect...');
 
             const name = escapeTgHTML(document.getElementById('senderName').value.trim());
             const contact = escapeTgHTML(document.getElementById('senderContact').value.trim());
@@ -349,7 +344,7 @@
                 if (response.ok) {
                     document.getElementById('success-state').classList.remove('hidden');
                     document.getElementById('contactForm').reset();
-                    window.KTUFlow?.capsule('success', 'Message delivered to Kerala Timetable!');
+                    window.KTUFlow?.capsule('success', 'Message delivered to KTU Connect!');
                 } else {
                     throw new Error('Telegram API rejected request');
                 }
